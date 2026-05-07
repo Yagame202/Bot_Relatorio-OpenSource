@@ -1,7 +1,3 @@
-// ============================================================
-// index.js v2.0 — Bot de Relatórios Técnicos
-// ============================================================
-
 require('dotenv').config();
 
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
@@ -12,7 +8,7 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 client.commands = new Collection();
 client.commands.set('relatorio', relatorio);
 
-// ── Pronto ─────────────────────────────────────────────────
+
 client.once('ready', (c) => {
   console.log('');
   console.log('╔══════════════════════════════════════╗');
@@ -28,30 +24,29 @@ client.once('ready', (c) => {
   console.log('');
 });
 
-// ── Interações ─────────────────────────────────────────────
+
 client.on('interactionCreate', async (interaction) => {
   try {
 
-    // Slash commands
+
     if (interaction.isChatInputCommand()) {
       const cmd = client.commands.get(interaction.commandName);
       if (cmd) await cmd.execute(interaction);
       return;
     }
 
-    // Botões → handleButton
+    
     if (interaction.isButton()) {
       await relatorio.handleButton(interaction);
       return;
     }
 
-    // Select Menus → handleSelect
+
     if (interaction.isStringSelectMenu()) {
       await relatorio.handleSelect(interaction);
       return;
     }
 
-    // Modais → handleModal
     if (interaction.isModalSubmit()) {
       await relatorio.handleModal(interaction);
       return;

@@ -1,8 +1,3 @@
-// ============================================================
-// commands/deploy-commands.js
-// Execute: node commands/deploy-commands.js
-// ============================================================
-
 require('dotenv').config();
 
 const { REST, Routes } = require('discord.js');

@@ -1,8 +1,3 @@
-// ============================================================
-// commands/relatorio.js  v2.0
-// Relatório Técnico — Interface profissional completa
-// ============================================================
-
 const {
   SlashCommandBuilder,
   ActionRowBuilder,
@@ -23,8 +18,6 @@ const path = require('path');
 const { melhorarTextoComIA } = require('../services/ai');
 const { gerarPDF }           = require('../services/pdf');
 
-// ── Configuração ───────────────────────────────────────────
-
 const SECOES = [
   { chave: 'introducao',      nome: 'Introdução',      emoji: '📝', num: 1 },
   { chave: 'objetivo',        nome: 'Objetivo',        emoji: '🎯', num: 2 },
@@ -36,18 +29,17 @@ const SECOES = [
 ];
 
 const CORES = {
-  primaria:  0x1a1a2e,   // azul escuro — cor principal da marca
-  sucesso:   0x27ae60,   // verde
-  info:      0x2980b9,   // azul
-  aviso:     0xe67e22,   // laranja
-  erro:      0xe74c3c,   // vermelho
-  roxa:      0x8e44ad,   // roxo (preview)
-  completo:  0x1abc9c,   // turquesa (100%)
+  primaria:  0x1a1a2e,  
+  sucesso:   0x27ae60,   
+  info:      0x2980b9,  
+  aviso:     0xe67e22,   
+  erro:      0xe74c3c,   
+  roxa:      0x8e44ad,  
+  completo:  0x1abc9c,   
 };
 
 const CAMINHO_JSON = path.join(__dirname, '..', 'data', 'relatorios.json');
 
-// ── Storage ────────────────────────────────────────────────
 
 function lerTodos() {
   try {
@@ -73,7 +65,7 @@ function salvarTodos(dados) {
   }
 }
 
-/** Retorna o objeto do usuário, criando se não existir. */
+
 function obterUsuario(userId) {
   const todos = lerTodos();
 
@@ -85,7 +77,7 @@ function obterUsuario(userId) {
 
   const u = todos[userId];
 
-  // Migração v1 → v2: seções eram strings simples
+
   let migrou = false;
   SECOES.forEach(s => {
     if (!u.secoes) u.secoes = {};
@@ -125,7 +117,6 @@ function _novoUsuario() {
   };
 }
 
-// ── Helpers ────────────────────────────────────────────────
 
 const getAtual    = (u, k) => u.secoes[k]?.atual    || '';
 const getOriginal = (u, k) => u.secoes[k]?.original || '';
@@ -151,7 +142,7 @@ function listaSecoes(u) {
     const ok   = estaPreenchida(u, s.chave);
     const orig = temVersionOriginal(u, s.chave);
     let badge  = ok ? '✅' : '⬜';
-    if (orig) badge += ' 🔄'; // tem versão original disponível
+    if (orig) badge += ' 🔄'; 
     return `${badge} **${s.num}.** ${s.nome}`;
   }).join('\n');
 }
@@ -163,7 +154,7 @@ function corPainel(preenchidas, total) {
   return CORES.aviso;
 }
 
-// ── Construtores de UI ─────────────────────────────────────
+
 
 function embedPainel(u, nomeUsuario) {
   const feito  = contarPreenchidas(u);
@@ -285,10 +276,10 @@ async function exibirPainel(interaction, atualizar = false) {
   }
 }
 
-// ── Select Menu helpers ────────────────────────────────────
+
 
 function selectSecoes(customId, placeholder, filtro, descFn, emoji = null) {
-  const u    = obterUsuario._cache; // passado via argumento abaixo
+  const u    = obterUsuario._cache; 
   const opts = SECOES.filter(filtro).map(s =>
     new StringSelectMenuOptionBuilder()
       .setLabel(s.nome)
@@ -303,12 +294,11 @@ function selectSecoes(customId, placeholder, filtro, descFn, emoji = null) {
     .addOptions(opts);
 }
 
-// ── Handlers: Botões ───────────────────────────────────────
 
 async function handleButton(interaction) {
   const id = interaction.customId;
 
-  // ── ✏️ Preencher ────────────────────────────────────────
+
   if (id === 'btn_preencher') {
     const u = obterUsuario(interaction.user.id);
 
@@ -343,7 +333,6 @@ async function handleButton(interaction) {
     return;
   }
 
-  // ── 👁️ Preview ──────────────────────────────────────────
   if (id === 'btn_preview') {
     await interaction.deferReply({ ephemeral: true });
     const u     = obterUsuario(interaction.user.id);
@@ -371,7 +360,6 @@ async function handleButton(interaction) {
     return;
   }
 
-  // ── 📄 Gerar PDF (privado) ──────────────────────────────
   if (id === 'btn_pdf') {
     await interaction.deferReply({ ephemeral: true });
     const u = obterUsuario(interaction.user.id);
@@ -418,7 +406,6 @@ async function handleButton(interaction) {
     return;
   }
 
-  // ── 📢 Publicar (canal público) ─────────────────────────
   if (id === 'btn_publicar') {
     await interaction.deferReply({ ephemeral: true });
     const u = obterUsuario(interaction.user.id);
@@ -473,16 +460,14 @@ async function handleButton(interaction) {
     return;
   }
 
-  // ── 🤖 Toggle IA ────────────────────────────────────────
   if (id === 'btn_toggle_ia') {
     const u = obterUsuario(interaction.user.id);
     u.iaAtiva = !u.iaAtiva;
     salvarUsuario(interaction.user.id, u);
-    await exibirPainel(interaction, true); // atualiza painel no lugar
+    await exibirPainel(interaction, true); 
     return;
   }
 
-  // ── 🔄 Restaurar original ────────────────────────────────
   if (id === 'btn_restaurar') {
     const u = obterUsuario(interaction.user.id);
     const disponiveis = SECOES.filter(s => temVersionOriginal(u, s.chave));
@@ -535,13 +520,11 @@ async function handleButton(interaction) {
     return;
   }
 
-  // ── 🗑️ Limpar seção ─────────────────────────────────────
   if (id === 'btn_limpar_secao') {
     await _mostrarMenuLimpar(interaction);
     return;
   }
 
-  // ── 🏷️ Editar Título ────────────────────────────────────
   if (id === 'btn_titulo') {
     const u = obterUsuario(interaction.user.id);
 
@@ -567,7 +550,6 @@ async function handleButton(interaction) {
     return;
   }
 
-  // ── ⚠️ Resetar tudo ─────────────────────────────────────
   if (id === 'btn_resetar') {
     await interaction.reply({
       embeds: [
@@ -602,7 +584,6 @@ async function handleButton(interaction) {
     return;
   }
 
-  // ── Confirmar reset ──────────────────────────────────────
   if (id === 'btn_resetar_sim') {
     const todos = lerTodos();
     delete todos[interaction.user.id];
@@ -623,7 +604,6 @@ async function handleButton(interaction) {
     return;
   }
 
-  // ── Cancelar reset ───────────────────────────────────────
   if (id === 'btn_resetar_nao') {
     await interaction.update({
       embeds: [
@@ -639,12 +619,9 @@ async function handleButton(interaction) {
   await interaction.reply({ content: '❌  Ação não reconhecida.', ephemeral: true });
 }
 
-// ── Handlers: Select Menus ─────────────────────────────────
-
 async function handleSelect(interaction) {
   const id = interaction.customId;
 
-  // ── Preencher seção ──────────────────────────────────────
   if (id === 'select_secao') {
     const chave = interaction.values[0];
     const secao = SECOES.find(s => s.chave === chave);
@@ -671,7 +648,6 @@ async function handleSelect(interaction) {
     return;
   }
 
-  // ── Restaurar original ───────────────────────────────────
   if (id === 'select_restaurar') {
     const chave = interaction.values[0];
     const secao = SECOES.find(s => s.chave === chave);
@@ -695,7 +671,6 @@ async function handleSelect(interaction) {
     return;
   }
 
-  // ── Limpar seção ─────────────────────────────────────────
   if (id === 'select_limpar') {
     const chave = interaction.values[0];
     const secao = SECOES.find(s => s.chave === chave);
@@ -717,12 +692,10 @@ async function handleSelect(interaction) {
   }
 }
 
-// ── Handlers: Modais ───────────────────────────────────────
 
 async function handleModal(interaction) {
   const id = interaction.customId;
 
-  // ── Editar título ────────────────────────────────────────
   if (id === 'modal_titulo') {
     const novo = interaction.fields.getTextInputValue('titulo').trim();
     const u    = obterUsuario(interaction.user.id);
@@ -741,21 +714,18 @@ async function handleModal(interaction) {
     return;
   }
 
-  // ── Conteúdo de seção ────────────────────────────────────
   if (id.startsWith('modal_conteudo_')) {
-    await interaction.deferReply({ ephemeral: true }); // IMEDIATO — evita timeout
+    await interaction.deferReply({ ephemeral: true });
 
     const chave   = id.replace('modal_conteudo_', '');
     const secao   = SECOES.find(s => s.chave === chave);
     const conteudo = interaction.fields.getTextInputValue('conteudo').trim();
     const u       = obterUsuario(interaction.user.id);
 
-    // Salva texto original antes de qualquer processamento
     u.secoes[chave].original = conteudo;
     u.secoes[chave].atual    = conteudo;
     salvarUsuario(interaction.user.id, u);
 
-    // Sem IA — apenas salva
     if (!u.iaAtiva) {
       await interaction.editReply({
         embeds: [
@@ -772,7 +742,6 @@ async function handleModal(interaction) {
       return;
     }
 
-    // Avisa que está melhorando
     await interaction.editReply({
       embeds: [
         new EmbedBuilder()
@@ -784,7 +753,6 @@ async function handleModal(interaction) {
       ],
     });
 
-    // Chama a IA
     try {
       const melhorado = await melhorarTextoComIA(secao.nome, conteudo);
       u.secoes[chave].atual = melhorado;
@@ -820,8 +788,6 @@ async function handleModal(interaction) {
     }
   }
 }
-
-// ── Subcommands slash ──────────────────────────────────────
 
 async function cmdPainel(interaction) {
   await exibirPainel(interaction, false);
@@ -884,7 +850,6 @@ async function cmdCompartilhar(interaction) {
   }
 }
 
-// ── Funções utilitárias privadas ───────────────────────────
 
 async function _mostrarMenuLimpar(interaction) {
   const u = obterUsuario(interaction.user.id);
@@ -955,8 +920,6 @@ function _limparArquivo(caminho, delay = 15_000) {
   }, delay);
 }
 
-// ── Exportação ─────────────────────────────────────────────
-
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('relatorio')
@@ -975,7 +938,7 @@ module.exports = {
     ),
 
 async execute(interaction) {
-  const sub = interaction.options.getSubcommand(false); // false = não lança erro
+  const sub = interaction.options.getSubcommand(false); 
   if (!sub || sub === 'painel') return cmdPainel(interaction);
   if (sub === 'limpar')         return cmdLimpar(interaction);
   if (sub === 'compartilhar')   return cmdCompartilhar(interaction);

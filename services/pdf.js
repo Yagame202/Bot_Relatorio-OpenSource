@@ -1,7 +1,3 @@
-// ============================================================
-// services/pdf.js — Geração de PDF profissional estilo ABNT
-// ============================================================
-
 const PDFDocument = require('pdfkit');
 const fs          = require('fs');
 const path        = require('path');
@@ -53,7 +49,6 @@ async function gerarPDF(relatorio, nomeUsuario, titulo = 'Relatório Técnico') 
   });
 }
 
-// ── Helpers internos ──────────────────────────────────────
 
 function _getTexto(relatorio, chave) {
   const val = relatorio[chave];
@@ -69,10 +64,9 @@ function _capa(doc, nomeUsuario, titulo) {
   const mr = doc.page.margins.right;
   const lw = W - ml - mr;
 
-  // Barra superior decorativa
+
   doc.rect(ml, 40, lw, 4).fill('#1a1a2e');
 
-  // Título centralizado verticalmente
   const inicioY = H * 0.30;
 
   doc
@@ -83,13 +77,12 @@ function _capa(doc, nomeUsuario, titulo) {
 
   doc.moveDown(0.6);
 
-  // Linha divisória
+
   const ly = doc.y;
   doc.rect(W / 2 - 70, ly, 140, 1.5).fill('#1a1a2e');
 
   doc.moveDown(2.5);
 
-  // Autor
   doc
     .font('Helvetica-Bold').fontSize(11).fillColor('#333333')
     .text('AUTOR', { width: lw, align: 'center' });
@@ -100,7 +93,6 @@ function _capa(doc, nomeUsuario, titulo) {
 
   doc.moveDown(1.5);
 
-  // Data
   doc
     .font('Helvetica-Bold').fontSize(11).fillColor('#333333')
     .text('DATA', { width: lw, align: 'center' });
@@ -112,7 +104,6 @@ function _capa(doc, nomeUsuario, titulo) {
       { width: lw, align: 'center' }
     );
 
-  // Barra inferior decorativa
   doc.rect(ml, H - 50, lw, 4).fill('#1a1a2e');
 }
 
@@ -145,7 +136,6 @@ function _conteudo(doc, relatorio) {
   SECOES.forEach((s, i) => {
     if (i > 0) doc.addPage();
 
-    // Título da seção
     doc
       .font('Helvetica-Bold').fontSize(13).fillColor('#1a1a2e')
       .text(s.titulo.toUpperCase());
@@ -155,7 +145,6 @@ function _conteudo(doc, relatorio) {
 
     doc.moveDown(0.9);
 
-    // Conteúdo
     const texto = _getTexto(relatorio, s.chave);
     if (texto.trim()) {
       doc
