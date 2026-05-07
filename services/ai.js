@@ -1,24 +1,23 @@
 const Groq = require('groq-sdk');
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+function getGroq() {
+  return new Groq({ apiKey: process.env.GROQ_API_KEY });
+}
 
 async function melhorarTextoComIA(secao, texto) {
   try {
-    const completion = await groq.chat.completions.create({
+    const completion = await getGroq().chat.completions.create({
       model: 'llama-3.3-70b-versatile',
       messages: [
         {
           role: 'system',
-          content:
-            'Você é um especialista em redação técnica e acadêmica brasileira. ' +
-            'Responda APENAS com o texto melhorado, sem explicações, sem aspas, sem prefixos.',
+          content: 'Você é um especialista em redação técnica e acadêmica brasileira. Responda APENAS com o texto melhorado, sem explicações, sem aspas, sem prefixos.',
         },
         {
           role: 'user',
           content:
             `Melhore o texto abaixo da seção "${secao}" de um relatório técnico.\n\n` +
-            `Aplique: linguagem formal, correção gramatical, estilo acadêmico (ABNT), ` +
-            `mantenha todas as informações originais, não invente dados.\n\n` +
+            `Aplique: linguagem formal, correção gramatical, estilo acadêmico (ABNT), mantenha todas as informações originais.\n\n` +
             `Texto:\n${texto}`,
         },
       ],
